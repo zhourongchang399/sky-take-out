@@ -16,7 +16,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 /**
  * @author ：Zc
@@ -53,5 +52,26 @@ public class CategoryServiceImpl implements CategoryService {
         // 默认未开启
         category.setStatus(StatusConstant.DISABLE);
         categoryMapper.insert(category);
+    }
+
+    @Override
+    public void updateCategoryStatus(int status, long id) {
+        Category category = Category.builder()
+                        .id(id)
+                        .status(status).build();
+        categoryMapper.update(category);
+    }
+
+    @Override
+    public void update(CategoryDTO categoryDTO) {
+        Category category = new Category();
+        BeanUtils.copyProperties(categoryDTO, category);
+
+        // 设置更新时间和更新账户
+        category.setUpdateTime(LocalDateTime.now());
+        category.setUpdateUser(BaseContext.getCurrentId());
+
+        categoryMapper.update(category);
+
     }
 }

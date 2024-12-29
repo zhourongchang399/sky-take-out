@@ -41,5 +41,21 @@ public class CategoryController {
         return Result.success();
     }
 
+    @ApiOperation("开启或停用分类")
+    @PostMapping("/status/{status}")
+    public Result updateCategoryStatus(@PathVariable int status,long id) {
+        log.info("开启或停用分类：{},{}",status, id);
+        categoryService.updateCategoryStatus(status, id);
+        return Result.success();
+    }
+
+    @ApiOperation("修改分类")
+    @PutMapping
+    public Result update(@RequestBody CategoryDTO categoryDTO) {
+        log.info("修改分类：{}", categoryDTO);
+        categoryService.update(categoryDTO);
+        return Result.success();
+    }
+
 
 }
