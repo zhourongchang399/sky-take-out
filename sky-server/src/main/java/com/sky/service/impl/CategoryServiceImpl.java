@@ -74,4 +74,11 @@ public class CategoryServiceImpl implements CategoryService {
         categoryMapper.update(category);
 
     }
+
+    @Override
+    public void deleteById(long id) {
+        // todo 判断菜品分类下是否有数据
+        // todo 判断套餐分类下是否有数据
+        categoryMapper.deleteById(id);
+    }
 }
