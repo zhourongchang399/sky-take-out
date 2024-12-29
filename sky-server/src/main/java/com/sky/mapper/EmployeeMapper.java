@@ -27,7 +27,7 @@ public interface EmployeeMapper {
             "values (#{name}, #{username}, #{password}, #{phone}, #{sex}, #{idNumber}, #{status}, #{createTime}, #{updateTime}, #{createUser}, #{updateUser})")
     void insert(Employee employee);
 
-    Page<Employee> pageQuary(EmployeePageQueryDTO employeePageQueryDTO);
+    Page<Employee> pageQuery(EmployeePageQueryDTO employeePageQueryDTO);
 
     void updateById(Employee employee);
 
