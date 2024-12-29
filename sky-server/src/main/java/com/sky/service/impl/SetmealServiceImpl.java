@@ -1,6 +1,8 @@
 package com.sky.service.impl;
 
+import com.sky.mapper.SetmealMapper;
 import com.sky.service.SetmealService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
@@ -10,4 +12,12 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class SetmealServiceImpl implements SetmealService {
+
+    @Autowired
+    SetmealMapper setmealMapper;
+
+    @Override
+    public long getByCategoryId(long categoryId) {
+        return setmealMapper.getByCategoryId(categoryId);
+    }
 }
