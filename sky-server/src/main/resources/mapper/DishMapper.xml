@@ -24,4 +24,15 @@
                 #{createUser},
                 #{updateUser})
     </insert>
+
+    <select id="pageQuery" resultType="com.sky.vo.DishVO">
+        select d.id, d.name, d.category_id, d.price, d.image, d.description, d.status, d.update_time, c.name as categoryName from dish as d left join category c on c.id = d.category_id
+            <where>
+                <if test="status != null">and d.status=#{status}</if>
+                <if test="name != null">and d.name like concat('%',#{name},'%')</if>
+                <if test="categoryId != null">and d.category_id=#{categoryId}</if>
+            </where>
+        order by update_time desc
+    </select>
+
 </mapper>

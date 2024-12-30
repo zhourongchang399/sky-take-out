@@ -1,9 +1,12 @@
 package com.sky.mapper;
 
 import com.sky.annotation.AutoFill;
+import com.sky.dto.DishPageQueryDTO;
 import com.sky.entity.Dish;
+import com.sky.vo.DishVO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
+import com.github.pagehelper.Page;
 
 @Mapper
 public interface DishMapper {
@@ -13,4 +16,6 @@ public interface DishMapper {
 
     @AutoFill
     long insert(Dish dish);
+
+    Page<DishVO> pageQuery(DishPageQueryDTO dishPageQueryDTO);
 }
