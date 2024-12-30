@@ -20,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * @author ：Zc
@@ -89,5 +90,13 @@ public class CategoryServiceImpl implements CategoryService {
             throw new DeletionNotAllowedException(MessageConstant.CATEGORY_BE_RELATED_BY_SETMEAL);
         }
         categoryMapper.deleteById(id);
+    }
+
+    @Override
+    public List<Category> listByType(Integer type) {
+        CategoryPageQueryDTO categoryPageQueryDTO = new CategoryPageQueryDTO();
+        categoryPageQueryDTO.setType(type);
+        List<Category> categories = categoryMapper.pageQuery(categoryPageQueryDTO);
+        return categories;
     }
 }
