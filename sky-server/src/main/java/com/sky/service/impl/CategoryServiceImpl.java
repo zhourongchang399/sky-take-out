@@ -51,13 +51,6 @@ public class CategoryServiceImpl implements CategoryService {
     public void addCategory(CategoryDTO categoryDTO) {
         Category category = new Category();
         BeanUtils.copyProperties(categoryDTO, category);
-        // 获取当前员工ID
-        Long empId = BaseContext.getCurrentId();
-
-        category.setCreateUser(empId);
-        category.setUpdateUser(empId);
-        category.setCreateTime(LocalDateTime.now());
-        category.setUpdateTime(LocalDateTime.now());
 
         // 默认未开启
         category.setStatus(StatusConstant.DISABLE);
@@ -76,10 +69,6 @@ public class CategoryServiceImpl implements CategoryService {
     public void update(CategoryDTO categoryDTO) {
         Category category = new Category();
         BeanUtils.copyProperties(categoryDTO, category);
-
-        // 设置更新时间和更新账户
-        category.setUpdateTime(LocalDateTime.now());
-        category.setUpdateUser(BaseContext.getCurrentId());
 
         categoryMapper.update(category);
 
