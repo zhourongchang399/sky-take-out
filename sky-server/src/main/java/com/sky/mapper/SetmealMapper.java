@@ -30,6 +30,6 @@ public interface SetmealMapper {
     @Select("select * from setmeal where id = #{id}")
     Setmeal getById(Long id);
 
-    @Update("update setmeal set status = #{status} where id = #{id}")
-    void updateSetmelStatus(Integer status, long id);
+    @AutoFill(operation = OperationType.UPDATE)
+    void update(Setmeal setmeal);
 }

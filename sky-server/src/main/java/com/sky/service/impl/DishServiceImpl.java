@@ -8,6 +8,7 @@ import com.sky.dto.DishDTO;
 import com.sky.dto.DishPageQueryDTO;
 import com.sky.entity.Dish;
 import com.sky.entity.DishFlavor;
+import com.sky.entity.Setmeal;
 import com.sky.entity.SetmealDish;
 import com.sky.exception.DeletionNotAllowedException;
 import com.sky.mapper.*;
@@ -150,7 +151,8 @@ public class DishServiceImpl implements DishService {
             if (setmealDishs != null && !setmealDishs.isEmpty()) {
                 // 根据套餐Id更新套餐状态
                 setmealDishs.forEach(setmealDish -> {
-                    setmealMapper.updateSetmelStatus(status, setmealDish.getSetmealId());
+                    Setmeal setmeal = Setmeal.builder().id(setmealDish.getSetmealId()).status(status).build();
+                    setmealMapper.update(setmeal);
                 });
             }
         }

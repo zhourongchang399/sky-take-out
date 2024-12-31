@@ -26,6 +26,19 @@
                #{updateUser})
     </insert>
 
+    <update id="update">
+        update setmeal
+        <set>
+            <if test="categoryId != null">category_id = #{categoryId},</if>
+            <if test="name != null">name = #{name},</if>
+            <if test="price != null">price = #{price},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="description != null">description = #{description},</if>
+            <if test="image != null">image = #{image},</if>
+        </set>
+        where id = #{id}
+    </update>
+
     <delete id="delete">
         delete from setmeal where id in
         <foreach collection="ids" separator="," open="(" close=")" item="id">
@@ -44,9 +57,9 @@
         select s.id, s.category_id, s.name, s.price, s.status, s.description, s.image, s.update_time, c.name as category_name
         from setmeal s left join category c on s.category_id = c.id
         <where>
-            <if test="categoryId != null">category_id = #{categoryId},</if>
-            <if test="name != null">name like concat('%',#{name},'%'),</if>
-            <if test="status != null">status = #{status},</if>
+            <if test="categoryId != null">s.category_id = #{categoryId}</if>
+            <if test="name != null">and s.name like concat('%',#{name},'%')</if>
+            <if test="status != null">and s.status = #{status}</if>
         </where>
     </select>
 

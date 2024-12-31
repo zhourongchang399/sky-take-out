@@ -21,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -99,6 +100,42 @@ public class SetmealServiceImpl implements SetmealService {
             }
         }
         // 更新套餐状态
-        setmealMapper.updateSetmelStatus(status, id);
+        Setmeal setmeal = Setmeal.builder().id(id).status(status).build();
+        setmealMapper.update(setmeal);
+    }
+
+    @Override
+    @Transactional
+    public SetmealVO getByIdWithSetmealDish(Long id) {
+        // 获取套餐信息
+        Setmeal setmeal = setmealMapper.getById(id);
+        // 获取套餐菜品关系信息
+        List<SetmealDish> setmealDishs = setmealDishMapper.getBySetmealId(id);
+        SetmealVO setmealVO = new SetmealVO();
+        // 构造套餐VO实体
+        BeanUtils.copyProperties(setmeal, setmealVO);
+        setmealVO.setSetmealDishes(setmealDishs);
+        return setmealVO;
+    }
+
+    @Override
+    @Transactional
+    public void updateSetmeal(SetmealDTO setmealDTO) {
+        // 获取套餐ID
+        List<Long> ids = new ArrayList<>();
+        ids.add(setmealDTO.getId());
+        // 删除目标套餐的套餐菜品关系
+        setmealDishMapper.delete(ids);
+        // 插入新的套餐菜品关系
+        List<SetmealDish> setmealDishes = setmealDTO.getSetmealDishes();
+        if (setmealDishes != null && !setmealDishes.isEmpty()) {
+            // 套餐菜品关系实体插入目标套餐Id
+            setmealDishes.forEach(setmealDish -> {setmealDish.setSetmealId(setmealDTO.getId());});
+            setmealDishMapper.insert(setmealDTO.getSetmealDishes());
+        }
+        // 更新套餐信息
+        Setmeal setmeal = new Setmeal();
+        BeanUtils.copyProperties(setmealDTO,setmeal);
+        setmealMapper.update(setmeal);
     }
 }
