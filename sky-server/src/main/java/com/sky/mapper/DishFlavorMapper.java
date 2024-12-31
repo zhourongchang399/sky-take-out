@@ -18,4 +18,6 @@ public interface DishFlavorMapper {
     List<DishFlavor> getByDishId(Long id);
 
     void update(DishFlavor flavors);
+
+    void listById(long id);
 }

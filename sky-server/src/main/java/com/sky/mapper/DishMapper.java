@@ -1,7 +1,6 @@
 package com.sky.mapper;
 
 import com.sky.annotation.AutoFill;
-import com.sky.constant.AutoFillConstant;
 import com.sky.dto.DishPageQueryDTO;
 import com.sky.entity.Dish;
 import com.sky.enumeration.OperationType;
@@ -30,4 +29,6 @@ public interface DishMapper {
 
     @AutoFill(operation = OperationType.UPDATE)
     void update(Dish dish);
+
+    List<Dish> listByCategoryId(long categoryId);
 }

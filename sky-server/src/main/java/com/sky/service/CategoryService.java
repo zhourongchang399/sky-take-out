@@ -20,4 +20,5 @@ public interface CategoryService {
     void deleteById(long id);
 
     List<Category> listByType(Integer type);
+
 }
