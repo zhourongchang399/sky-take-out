@@ -9,4 +9,6 @@ import java.util.List;
 @Mapper
 public interface SetmealDishMapper {
     void insert(@Param(value = "setmealDishes") List<SetmealDish> setmealDishes);
+
+    void delete(List<Long> ids);
 }

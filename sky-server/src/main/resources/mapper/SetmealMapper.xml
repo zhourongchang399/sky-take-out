@@ -26,6 +26,13 @@
                #{updateUser})
     </insert>
 
+    <delete id="delete">
+        delete from setmeal where id in
+        <foreach collection="ids" separator="," open="(" close=")" item="id">
+            #{id}
+        </foreach>
+    </delete>
+
     <select id="getByIds" resultType="java.lang.Long">
         select count(0) from setmeal where id in
         <foreach collection="ids" item="id" open="(" close=")" separator=",">
