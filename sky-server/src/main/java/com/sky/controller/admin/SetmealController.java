@@ -50,4 +50,12 @@ public class SetmealController {
         setmealService.deleteSetmeal(ids);
         return Result.success();
     }
+
+    @PostMapping("/status/{status}")
+    @ApiOperation("停用或启用套餐")
+    public Result stopOrOpenSetmeal(@PathVariable Integer status, long id) {
+        log.info("停用或启用套餐：{},{}",status, id);
+        setmealService.stopOrOpenSetmeal(status, id);
+        return Result.success();
+    }
 }
