@@ -10,7 +10,7 @@ import java.util.List;
 
 public interface SetmealService {
 
-    public long getByCategoryId(long categoryId);
+    List<Setmeal> getByCategoryId(long categoryId);
 
     void addSetmeal(SetmealDTO setmealDTO);
 

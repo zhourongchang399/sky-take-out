@@ -21,7 +21,7 @@ import java.util.List;
  * @description：TODO
  * @date ：2024/12/30 17:08
  */
-@RestController
+@RestController("adminDishController")
 @RequestMapping("/admin/dish")
 @Api(tags = "菜品相关接口")
 @Slf4j

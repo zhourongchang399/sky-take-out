@@ -41,7 +41,7 @@ public class SetmealServiceImpl implements SetmealService {
     private DishMapper dishMapper;
 
     @Override
-    public long getByCategoryId(long categoryId) {
+    public List<Setmeal> getByCategoryId(long categoryId) {
         return setmealMapper.getByCategoryId(categoryId);
     }
 

@@ -11,6 +11,7 @@ import com.sky.properties.WeChatProperties;
 import com.sky.service.UserService;
 import com.sky.utils.HttpClientUtil;
 import com.sky.vo.UserLoginVO;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -40,6 +41,7 @@ import java.util.List;
  * @date ：2025/1/1 22:24
  */
 @Service
+@Slf4j
 public class UserServiceImpl implements UserService {
 
     private final static String OPENID = "openid";
@@ -62,7 +64,7 @@ public class UserServiceImpl implements UserService {
         URIBuilder builder = new URIBuilder(WX_LOGIN);
         builder.addParameter("appId", weChatProperties.getAppid());
         builder.addParameter("secret", weChatProperties.getSecret());
-        builder.addParameter("code", userLoginDTO.getCode());
+        builder.addParameter("js_code", userLoginDTO.getCode());
         builder.addParameter("grant_type", "authorization_code");
         URI uri = builder.build();
 
@@ -78,12 +80,11 @@ public class UserServiceImpl implements UserService {
         // 解析JSON
         String s = EntityUtils.toString(responseEntity);
         JSONObject object = JSONObject.parseObject(s);
-        String openId = (String) object.get("OPENID");
-
-        if (openId != null) {
+        String openId = (String) object.get(OPENID);
+        log.info("openid:{}",openId);
+        if (openId == null) {
             throw new LoginFailedException(MessageConstant.LOGIN_FAILED);
         }
-
         // 判断是否已经注册
         User user = userMapper.getByOpenId(openId);
         if (user == null) {
@@ -94,7 +95,6 @@ public class UserServiceImpl implements UserService {
             userMapper.insert(newUser);
             return newUser;
         }
-
         return user;
     }
 

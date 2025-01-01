@@ -20,7 +20,7 @@ import java.util.List;
  * @date ：2024/12/31 14:09
  */
 @Slf4j
-@RestController
+@RestController("adminSetmealController")
 @RequestMapping("/admin/setmeal")
 @Api(tags = "套餐相关接口")
 public class SetmealController {
@@ -61,9 +61,9 @@ public class SetmealController {
     }
 
     @GetMapping("/{id}")
-    @ApiOperation("根据Id查询套餐")
+    @ApiOperation("根据套餐id查询包含的菜品")
     public Result<SetmealVO> getById(@PathVariable Long id) {
-        log.info("根据Id查询套餐:{}", id);
+        log.info("根据套餐id查询包含的菜品:{}", id);
         SetmealVO setmealVO = setmealService.getByIdWithSetmealDish(id);
         return Result.success(setmealVO);
     }

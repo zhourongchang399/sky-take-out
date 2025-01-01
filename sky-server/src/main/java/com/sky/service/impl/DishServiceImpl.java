@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -166,6 +167,27 @@ public class DishServiceImpl implements DishService {
     @Override
     public List<Dish> listByCategoryId(long categoryId) {
         return dishMapper.listByCategoryId(categoryId);
+    }
+
+    @Override
+    @Transactional
+    public List<DishVO> listByCategoryIdWithFlavors(long categoryId) {
+        List<DishVO> dishVOS = new ArrayList<>();
+        // 查询菜品信息
+        List<Dish> dishList = dishMapper.listByCategoryId(categoryId);
+        for (Dish dish : dishList) {
+            // 根据分类Id查询分类信息
+            String categoryName = categoryMapper.getById(dish.getCategoryId()).getName();
+            // 根据菜品Id查询菜品对应的口味
+            List<DishFlavor> dishFlavorList = dishFlavorMapper.getByDishId(dish.getId());
+            // 创建菜品VO对象
+            DishVO dishVO = new DishVO();
+            BeanUtils.copyProperties(dish, dishVO);
+            dishVO.setFlavors(dishFlavorList);
+            dishVO.setCategoryName(categoryName);
+            dishVOS.add(dishVO);
+        }
+        return dishVOS;
     }
 
 }
