@@ -53,10 +53,30 @@ public class UserServiceImpl implements UserService {
     @Autowired
     UserMapper userMapper;
 
-
     @Override
     @Transactional
     public User login(UserLoginDTO userLoginDTO) throws IOException, URISyntaxException {
+        String openId = getOpenId(userLoginDTO);
+
+        log.info("openid:{}",openId);
+        if (openId == null) {
+            throw new LoginFailedException(MessageConstant.LOGIN_FAILED);
+        }
+
+        // 判断是否已经注册
+        User user = userMapper.getByOpenId(openId);
+        if (user == null) {
+            // 未注册则插入新用户数据
+            User newUser = new User();
+            newUser.setOpenid(openId);
+            newUser.setCreateTime(LocalDateTime.now());
+            userMapper.insert(newUser);
+            return newUser;
+        }
+        return user;
+    }
+
+    private String getOpenId(UserLoginDTO userLoginDTO) throws URISyntaxException, IOException {
         // 创建服务端
         CloseableHttpClient client = HttpClientBuilder.create().build();
 
@@ -74,6 +94,11 @@ public class UserServiceImpl implements UserService {
         // 发送请求
         CloseableHttpResponse response = client.execute(get);
 
+        // 获取响应头
+        if (response.getStatusLine().getStatusCode() != 200) {
+            throw new LoginFailedException(MessageConstant.LOGIN_FAILED);
+        }
+
         // 获取响应体
         HttpEntity responseEntity = response.getEntity();
 
@@ -81,21 +106,12 @@ public class UserServiceImpl implements UserService {
         String s = EntityUtils.toString(responseEntity);
         JSONObject object = JSONObject.parseObject(s);
         String openId = (String) object.get(OPENID);
-        log.info("openid:{}",openId);
-        if (openId == null) {
-            throw new LoginFailedException(MessageConstant.LOGIN_FAILED);
-        }
-        // 判断是否已经注册
-        User user = userMapper.getByOpenId(openId);
-        if (user == null) {
-            // 未注册则插入新用户数据
-            User newUser = new User();
-            newUser.setOpenid(openId);
-            newUser.setCreateTime(LocalDateTime.now());
-            userMapper.insert(newUser);
-            return newUser;
-        }
-        return user;
+
+        // 关闭HTTPClient和Response
+        response.close();
+        client.close();
+
+        return openId;
     }
 
 }
