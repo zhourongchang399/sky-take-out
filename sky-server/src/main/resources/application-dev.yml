@@ -1,3 +1,10 @@
+spring:
+  redis:
+    host: 127.0.0.1
+    port: 6379
+    password: thank@#ggblood6
+    database: 6
+
 sky:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
