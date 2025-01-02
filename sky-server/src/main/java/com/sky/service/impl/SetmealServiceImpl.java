@@ -6,6 +6,7 @@ import com.sky.constant.MessageConstant;
 import com.sky.constant.StatusConstant;
 import com.sky.dto.SetmealDTO;
 import com.sky.dto.SetmealPageQueryDTO;
+import com.sky.entity.Dish;
 import com.sky.entity.Setmeal;
 import com.sky.entity.SetmealDish;
 import com.sky.exception.DeletionNotAllowedException;
@@ -15,13 +16,18 @@ import com.sky.mapper.SetmealDishMapper;
 import com.sky.mapper.SetmealMapper;
 import com.sky.result.PageResult;
 import com.sky.service.SetmealService;
+import com.sky.vo.DishItemVO;
 import com.sky.vo.SetmealVO;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -37,6 +43,7 @@ public class SetmealServiceImpl implements SetmealService {
 
     @Autowired
     SetmealDishMapper setmealDishMapper;
+
     @Autowired
     private DishMapper dishMapper;
 
@@ -94,7 +101,7 @@ public class SetmealServiceImpl implements SetmealService {
             // 判断套装中的菜品是否停用，菜品停用套餐不准启用
             List<SetmealDish> setmealDishs = setmealDishMapper.getBySetmealId(id);
             for (SetmealDish setmealDish : setmealDishs) {
-                if (dishMapper.geyById(setmealDish.getDishId()).getStatus() == StatusConstant.DISABLE) {
+                if (dishMapper.getById(setmealDish.getDishId()).getStatus() == StatusConstant.DISABLE) {
                     throw new SetmealEnableFailedException(MessageConstant.SETMEAL_ENABLE_FAILED);
                 }
             }
@@ -137,5 +144,25 @@ public class SetmealServiceImpl implements SetmealService {
         Setmeal setmeal = new Setmeal();
         BeanUtils.copyProperties(setmealDTO,setmeal);
         setmealMapper.update(setmeal);
+    }
+
+    @Override
+    @Transactional
+    public List<DishItemVO> getByIdOnlySetmealDish(Long id) {
+        List<DishItemVO> dishItemVOS = new ArrayList<>();
+        // 获取套餐菜品关系信息
+        List<SetmealDish> setmealDishs = setmealDishMapper.getBySetmealId(id);
+        // 获取菜品信息
+        for (SetmealDish setmealDish : setmealDishs) {
+            Dish dish = dishMapper.getById(setmealDish.getDishId());
+            DishItemVO dishItemVO = DishItemVO.builder()
+                    .name(dish.getName())
+                    .image(dish.getImage())
+                    .description(dish.getDescription())
+                    .copies(setmealDish.getCopies())
+                    .build();
+            dishItemVOS.add(dishItemVO);
+        }
+        return dishItemVOS;
     }
 }

@@ -23,7 +23,7 @@ public interface DishMapper {
     Page<DishVO> pageQuery(DishPageQueryDTO dishPageQueryDTO);
 
     @Select("select * from dish where id = #{id}")
-    Dish geyById(Long id);
+    Dish getById(Long id);
 
     void deleteByIds(List<Long> ids);
 

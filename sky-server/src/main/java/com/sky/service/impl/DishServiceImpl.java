@@ -18,12 +18,15 @@ import com.sky.vo.DishVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author ：Zc
@@ -33,6 +36,8 @@ import java.util.List;
 @Slf4j
 @Service
 public class DishServiceImpl implements DishService {
+
+    private final static String PATTERN = "dish_*";
 
     @Autowired
     DishMapper dishMapper;
@@ -48,6 +53,9 @@ public class DishServiceImpl implements DishService {
 
     @Autowired
     private CategoryMapper categoryMapper;
+
+    @Autowired
+    RedisTemplate redisTemplate;
 
     @Override
     public long getByCategoryId(long categoryId) {
@@ -70,6 +78,13 @@ public class DishServiceImpl implements DishService {
             dishFlavorList.forEach(dishFlavor -> {dishFlavor.setDishId(dishId);});
             dishFlavorMapper.insert(dishFlavorList);
         }
+        //清除缓存
+        cleanCache(PATTERN);
+    }
+
+    private void cleanCache(String pattern) {
+        Set keys = redisTemplate.keys(pattern);
+        redisTemplate.delete(keys);
     }
 
     @Override
@@ -84,7 +99,7 @@ public class DishServiceImpl implements DishService {
     public void deleteDish(List<Long> ids) {
         // 查询批量删除Ids中是否有起售的
         ids.forEach(id -> {
-            Dish dish = dishMapper.geyById(id);
+            Dish dish = dishMapper.getById(id);
             if (dish.getStatus() == StatusConstant.ENABLE) {
                 throw new DeletionNotAllowedException(MessageConstant.DISH_ON_SALE);
             }
@@ -98,13 +113,15 @@ public class DishServiceImpl implements DishService {
         dishFlavorMapper.deleteByIds(ids);
         // 批量删除菜品
         dishMapper.deleteByIds(ids);
+        //清除缓存
+        cleanCache(PATTERN);
     }
 
     @Override
     @Transactional
     public DishVO getByIdWithFlavor(Long id) {
         // 查询菜品信息
-        Dish dish = dishMapper.geyById(id);
+        Dish dish = dishMapper.getById(id);
         // 根据分类Id查询分类信息
         String categoryName = categoryMapper.getById(dish.getCategoryId()).getName();
         // 根据菜品Id查询菜品对应的口味
@@ -139,6 +156,8 @@ public class DishServiceImpl implements DishService {
         Dish dish = new Dish();
         BeanUtils.copyProperties(dishDTO, dish);
         dishMapper.update(dish);
+        //清除缓存
+        cleanCache(PATTERN);
     }
 
     @Override
@@ -162,6 +181,8 @@ public class DishServiceImpl implements DishService {
         dish.setStatus(status);
         dish.setId(id);
         dishMapper.update(dish);
+        //清除缓存
+        cleanCache(PATTERN);
     }
 
     @Override
@@ -172,8 +193,16 @@ public class DishServiceImpl implements DishService {
     @Override
     @Transactional
     public List<DishVO> listByCategoryIdWithFlavors(long categoryId) {
-        List<DishVO> dishVOS = new ArrayList<>();
+        // 从缓存中获取目标键值
+        String key = "dish_" + categoryId;
+        ValueOperations ops = redisTemplate.opsForValue();
+        List<DishVO> redisDishVOS = (List<DishVO>) ops.get(key);
+        if (redisDishVOS != null && redisDishVOS.size() > 0) {
+            return redisDishVOS;
+        }
+
         // 查询菜品信息
+        List<DishVO> dishVOS = new ArrayList<>();
         List<Dish> dishList = dishMapper.listByCategoryId(categoryId);
         for (Dish dish : dishList) {
             // 根据分类Id查询分类信息
@@ -187,6 +216,9 @@ public class DishServiceImpl implements DishService {
             dishVO.setCategoryName(categoryName);
             dishVOS.add(dishVO);
         }
+
+        // 缓存菜品信息
+        ops.set(key, dishVOS);
         return dishVOS;
     }
 
