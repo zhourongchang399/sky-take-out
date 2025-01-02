@@ -87,4 +87,9 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
         return shoppingCartList;
     }
 
+    @Override
+    public void clean(long userId) {
+        shoppingCartMapper.delete(userId);
+    }
+
 }
