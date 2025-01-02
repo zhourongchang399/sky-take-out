@@ -11,4 +11,6 @@ public interface ShoppingCartService {
     List<ShoppingCart> listById(Long userId);
 
     void clean(long userId);
+
+    void sub(ShoppingCartDTO shoppingCartDTO);
 }
