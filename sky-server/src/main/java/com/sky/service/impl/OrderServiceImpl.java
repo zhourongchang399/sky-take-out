@@ -1,8 +1,10 @@
 package com.sky.service.impl;
 
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
 import com.sky.constant.MessageConstant;
 import com.sky.context.BaseContext;
-import com.sky.dto.OrdersDTO;
+import com.sky.dto.OrdersPageQueryDTO;
 import com.sky.dto.OrdersSubmitDTO;
 import com.sky.entity.AddressBook;
 import com.sky.entity.OrderDetail;
@@ -13,18 +15,17 @@ import com.sky.mapper.AddressBookMapper;
 import com.sky.mapper.OrderDetailsMapper;
 import com.sky.mapper.OrderMapper;
 import com.sky.mapper.ShoppingCartMapper;
+import com.sky.result.PageResult;
 import com.sky.service.OrderService;
+import com.sky.vo.OrderHistoryVO;
 import com.sky.vo.OrderSubmitVO;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -117,5 +118,27 @@ public class OrderServiceImpl implements OrderService {
                 .build();
 
         return orderSubmitVO;
+    }
+
+    @Override
+    @Transactional
+    public PageResult pageQuery(OrdersPageQueryDTO ordersPageQueryDTO) {
+        // 分页查询订单信息
+        PageHelper.startPage(ordersPageQueryDTO.getPage(), ordersPageQueryDTO.getPageSize());
+        Page<Orders> page = orderMapper.pageQuery(ordersPageQueryDTO);
+        List<Orders> OrderList = page.getResult();
+
+        // 构建历史订单实体
+        List<OrderHistoryVO> orderHistoryVOList = new ArrayList<>();
+        for (Orders orders : OrderList) {
+            OrderDetail orderDetail = new OrderDetail();
+            orderDetail.setOrderId(orders.getId());
+            List<OrderDetail> orderDetails = orderDetailsMapper.list(orderDetail);
+            OrderHistoryVO orderHistoryVO = new OrderHistoryVO();
+            BeanUtils.copyProperties(orders, orderHistoryVO);
+            orderHistoryVO.setOrderDetailList(orderDetails);
+            orderHistoryVOList.add(orderHistoryVO);
+        }
+        return new PageResult(page.getTotal(), orderHistoryVOList);
     }
 }

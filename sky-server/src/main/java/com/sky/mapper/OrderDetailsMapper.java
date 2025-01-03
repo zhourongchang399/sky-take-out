@@ -8,4 +8,6 @@ import java.util.List;
 @Mapper
 public interface OrderDetailsMapper {
     void insert(List<OrderDetail> orderDetails);
+
+    List<OrderDetail> list(OrderDetail orderDetail);
 }
