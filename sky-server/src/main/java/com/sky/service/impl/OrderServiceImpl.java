@@ -17,6 +17,7 @@ import com.sky.mapper.OrderDetailsMapper;
 import com.sky.mapper.OrderMapper;
 import com.sky.mapper.ShoppingCartMapper;
 import com.sky.result.PageResult;
+import com.sky.service.DishService;
 import com.sky.service.OrderService;
 import com.sky.vo.OrderHistoryVO;
 import com.sky.vo.OrderItemVO;
@@ -29,6 +30,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.StringJoiner;
 
 /**
  * @author ：Zc
@@ -133,11 +135,21 @@ public class OrderServiceImpl implements OrderService {
         // 构建历史订单实体
         List<OrderHistoryVO> orderHistoryVOList = new ArrayList<>();
         for (Orders orders : OrderList) {
+            // 查询订单明显
             OrderDetail orderDetail = new OrderDetail();
             orderDetail.setOrderId(orders.getId());
             List<OrderDetail> orderDetails = orderDetailsMapper.list(orderDetail);
+
+            // 构建订单菜品字符串
+            StringJoiner stringJoiner = new StringJoiner(",");
+            for (OrderDetail detail : orderDetails) {
+                stringJoiner.add(detail.getName());
+            }
+
+            // 构建订单历史VO对象
             OrderHistoryVO orderHistoryVO = new OrderHistoryVO();
             BeanUtils.copyProperties(orders, orderHistoryVO);
+            orderHistoryVO.setOrderDishes(stringJoiner.toString());
             orderHistoryVO.setOrderDetailList(orderDetails);
             orderHistoryVOList.add(orderHistoryVO);
         }
