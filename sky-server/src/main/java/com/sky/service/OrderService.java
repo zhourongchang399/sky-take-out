@@ -4,6 +4,7 @@ import com.sky.dto.OrdersDTO;
 import com.sky.dto.OrdersPageQueryDTO;
 import com.sky.dto.OrdersSubmitDTO;
 import com.sky.result.PageResult;
+import com.sky.vo.OrderItemVO;
 import com.sky.vo.OrderSubmitVO;
 
 public interface OrderService {
@@ -12,4 +13,6 @@ public interface OrderService {
     PageResult pageQuery(OrdersPageQueryDTO ordersPageQueryDTO);
 
     void cancel(long id);
+
+    OrderItemVO orderDetail(long id);
 }

@@ -18,6 +18,7 @@ import com.sky.mapper.ShoppingCartMapper;
 import com.sky.result.PageResult;
 import com.sky.service.OrderService;
 import com.sky.vo.OrderHistoryVO;
+import com.sky.vo.OrderItemVO;
 import com.sky.vo.OrderSubmitVO;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -87,7 +88,7 @@ public class OrderServiceImpl implements OrderService {
         order.setPayStatus(Orders.UN_PAID);
         order.setPhone(userAddressBook.getPhone());
         order.setAddress(userAddressBook.getDetail());
-        order.setConsignee(addressBook.getConsignee());
+        order.setConsignee(userAddressBook.getConsignee());
         order.setNumber(String.valueOf(System.currentTimeMillis()));
         order.setStatus(Orders.PENDING_PAYMENT);
 
@@ -148,5 +149,22 @@ public class OrderServiceImpl implements OrderService {
         orders.setId(id);
         orders.setStatus(Orders.CANCELLED);
         orderMapper.update(orders);
+    }
+
+    @Override
+    @Transactional
+    public OrderItemVO orderDetail(long id) {
+        // 查询订单信息
+        Orders orders = orderMapper.getById(id);
+        OrderItemVO orderItemVO = new OrderItemVO();
+        BeanUtils.copyProperties(orders, orderItemVO);
+
+        // 查询订单详细信息
+        OrderDetail orderDetail = new OrderDetail();
+        orderDetail.setOrderId(id);
+        List<OrderDetail> orderDetailList = orderDetailsMapper.list(orderDetail);
+
+        orderItemVO.setOrderDetailList(orderDetailList);
+        return orderItemVO;
     }
 }

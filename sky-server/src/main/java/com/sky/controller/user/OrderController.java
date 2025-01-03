@@ -6,6 +6,7 @@ import com.sky.dto.OrdersSubmitDTO;
 import com.sky.result.PageResult;
 import com.sky.result.Result;
 import com.sky.service.OrderService;
+import com.sky.vo.OrderItemVO;
 import com.sky.vo.OrderSubmitVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -51,6 +52,14 @@ public class OrderController {
         log.info("取消订单:{}",id);
         orderService.cancel(id);
         return Result.success();
+    }
+
+    @GetMapping("/orderDetail/{id}")
+    @ApiOperation("订单细节")
+    public Result<OrderItemVO> orderDetail(@PathVariable long id) {
+        log.info("订单细节:{}",id);
+        OrderItemVO orderItemVO = orderService.orderDetail(id);
+        return Result.success(orderItemVO);
     }
 
 }

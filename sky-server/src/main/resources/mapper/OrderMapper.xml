@@ -40,8 +40,8 @@
                 #{phone},
                 #{address},
                 #{userName},
-                #{cancelReason},
                 #{consignee},
+                #{cancelReason},
                 #{rejectionReason},
                 #{cancelTime},
                 #{estimatedDeliveryTime},
@@ -76,5 +76,9 @@
             <if test="beginTime != null and endTime != null">and order_time between #{beginTime} and #{endTime}</if>
             <if test="userId != null">and user_Id = #{userId}</if>
         </where>
+    </select>
+
+    <select id="getById" resultType="com.sky.entity.Orders">
+        select * from orders where id = #{id}
     </select>
 </mapper>
