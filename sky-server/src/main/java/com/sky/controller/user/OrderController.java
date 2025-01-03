@@ -16,6 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -52,7 +53,12 @@ public class OrderController {
     @ApiOperation("取消订单")
     public Result cancel(@PathVariable long id) {
         log.info("取消订单:{}",id);
-        orderService.cancel(id);
+        Orders orders = new Orders();
+        orders.setId(id);
+        orders.setStatus(Orders.CANCELLED);
+        orders.setPayStatus(Orders.REFUND);
+        orders.setCancelTime(LocalDateTime.now());
+        orderService.update(orders);
         return Result.success();
     }
 

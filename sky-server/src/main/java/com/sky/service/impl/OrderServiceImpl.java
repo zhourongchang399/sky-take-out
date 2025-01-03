@@ -157,26 +157,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public void cancel(long id) {
-        Orders orders = new Orders();
-        orders.setId(id);
-        orders.setStatus(Orders.CANCELLED);
-        orderMapper.update(orders);
-    }
-
-    @Override
-    public void completed(long id) {
-        Orders orders = new Orders();
-        orders.setId(id);
-        orders.setStatus(Orders.COMPLETED);
-        orderMapper.update(orders);
-    }
-
-    @Override
-    public void confirm(Long id) {
-        Orders orders = new Orders();
-        orders.setId(id);
-        orders.setStatus(Orders.CONFIRMED);
+    public void update(Orders orders) {
         orderMapper.update(orders);
     }
 

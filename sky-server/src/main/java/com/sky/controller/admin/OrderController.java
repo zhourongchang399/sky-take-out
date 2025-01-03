@@ -1,6 +1,8 @@
 package com.sky.controller.admin;
 
+import com.sky.dto.OrdersCancelDTO;
 import com.sky.dto.OrdersPageQueryDTO;
+import com.sky.dto.OrdersRejectionDTO;
 import com.sky.entity.Orders;
 import com.sky.result.PageResult;
 import com.sky.result.Result;
@@ -10,8 +12,11 @@ import com.sky.vo.OrderOverViewVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDateTime;
 
 /**
  * @author ：Zc
@@ -51,11 +56,29 @@ public class OrderController {
         return Result.success(orderItemVO);
     }
 
-    @PutMapping("/cancel/{id}")
+    @PutMapping("/cancel")
     @ApiOperation("取消订单")
-    public Result cancel(@PathVariable long id) {
-        log.info("取消订单:{}",id);
-        orderService.cancel(id);
+    public Result cancel(@RequestBody OrdersCancelDTO ordersCancelDTO) {
+        log.info("取消订单:{}",ordersCancelDTO);
+        Orders orders = new Orders();
+        BeanUtils.copyProperties(ordersCancelDTO, orders);
+        orders.setStatus(Orders.CANCELLED);
+        orders.setPayStatus(Orders.REFUND);
+        orders.setCancelTime(LocalDateTime.now());
+        orderService.update(orders);
+        return Result.success();
+    }
+
+    @PutMapping("/rejection")
+    @ApiOperation("拒单")
+    public Result cancel(@RequestBody OrdersRejectionDTO ordersRejectionDTO) {
+        log.info("拒单:{}",ordersRejectionDTO);
+        Orders orders = new Orders();
+        BeanUtils.copyProperties(ordersRejectionDTO, orders);
+        orders.setStatus(Orders.CANCELLED);
+        orders.setPayStatus(Orders.REFUND);
+        orders.setCancelTime(LocalDateTime.now());
+        orderService.update(orders);
         return Result.success();
     }
 
@@ -63,7 +86,10 @@ public class OrderController {
     @ApiOperation("完成订单")
     public Result completed(@PathVariable long id) {
         log.info("完成订单:{}",id);
-        orderService.completed(id);
+        Orders orders = new Orders();
+        orders.setId(id);
+        orders.setStatus(Orders.COMPLETED);
+        orderService.update(orders);
         return Result.success();
     }
 
@@ -71,7 +97,8 @@ public class OrderController {
     @ApiOperation("接单")
     public Result confirm(@RequestBody Orders orders) {
         log.info("接单:{}", orders.getId());
-        orderService.confirm(orders.getId());
+        orders.setStatus(Orders.CONFIRMED);
+        orderService.update(orders);
         return Result.success();
     }
 

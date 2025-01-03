@@ -15,9 +15,7 @@ public interface OrderService {
 
     PageResult pageQuery(OrdersPageQueryDTO ordersPageQueryDTO);
 
-    void cancel(long id);
-
-    void completed(long id);
+    void update(Orders orders);
 
     OrderItemVO orderDetail(long id);
 
@@ -27,5 +25,4 @@ public interface OrderService {
 
     OrderOverViewVO statistics();
 
-    void confirm(Long id);
 }
