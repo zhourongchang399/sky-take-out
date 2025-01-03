@@ -167,4 +167,40 @@ public class OrderServiceImpl implements OrderService {
         orderItemVO.setOrderDetailList(orderDetailList);
         return orderItemVO;
     }
+
+    @Override
+    @Transactional
+    public void repitition(long id) {
+        // 查询订单信息
+        Orders orders = orderMapper.getById(id);
+
+        // 初始化订单信息
+        orders.setUserId(BaseContext.getCurrentId());
+        orders.setOrderTime(LocalDateTime.now());
+        orders.setPayStatus(Orders.UN_PAID);
+        orders.setNumber(String.valueOf(System.currentTimeMillis()));
+        orders.setStatus(Orders.PENDING_PAYMENT);
+        orders.setCheckoutTime(null);
+        orders.setCancelReason(null);
+        orders.setRejectionReason(null);
+        orders.setCancelTime(null);
+        orders.setDeliveryStatus(1);
+        orders.setEstimatedDeliveryTime(LocalDateTime.now().plusHours(1));
+        orders.setDeliveryTime(null);
+
+        // 插入订单数据，返回自增orderId
+        orderMapper.insert(orders);
+        
+        // 查询订单详细信息
+        OrderDetail orderDetail = new OrderDetail();
+        orderDetail.setOrderId(id);
+        List<OrderDetail> orderDetailList = orderDetailsMapper.list(orderDetail);
+        
+        // 插入订单明细
+        for (OrderDetail detail : orderDetailList) {
+            detail.setOrderId(orders.getId());
+        }
+        orderDetailsMapper.insert(orderDetailList);
+
+    }
 }
