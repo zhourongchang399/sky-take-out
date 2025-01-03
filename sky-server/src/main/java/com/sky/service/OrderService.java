@@ -10,4 +10,6 @@ public interface OrderService {
     OrderSubmitVO submitOrder(OrdersSubmitDTO ordersSubmitDTO);
 
     PageResult pageQuery(OrdersPageQueryDTO ordersPageQueryDTO);
+
+    void cancel(long id);
 }

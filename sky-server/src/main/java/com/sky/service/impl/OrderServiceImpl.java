@@ -141,4 +141,12 @@ public class OrderServiceImpl implements OrderService {
         }
         return new PageResult(page.getTotal(), orderHistoryVOList);
     }
+
+    @Override
+    public void cancel(long id) {
+        Orders orders = new Orders();
+        orders.setId(id);
+        orders.setStatus(Orders.CANCELLED);
+        orderMapper.update(orders);
+    }
 }

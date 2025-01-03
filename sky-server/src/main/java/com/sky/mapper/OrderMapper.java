@@ -11,4 +11,6 @@ public interface OrderMapper {
     void insert(Orders order);
 
     Page<Orders> pageQuery(OrdersPageQueryDTO ordersPageQueryDTO);
+
+    void update(Orders orders);
 }

@@ -51,6 +51,22 @@
                 #{tablewareNumber},
                 #{tablewareStatus})
     </insert>
+
+    <update id="update">
+        update orders
+        <set>
+            <if test="status != null">status = #{status},</if>
+            <if test="checkoutTime != null">checkout_Time = #{checkoutTime},</if>
+            <if test="payStatus != null">pay_status = #{payStatus},</if>
+            <if test="cancelReason != null">cancel_Reason = #{cancelReason},</if>
+            <if test="rejectionReason != null">rejection_Reason = #{rejectionReason},</if>
+            <if test="cancelTime != null">cancel_Time = #{cancelTime},</if>
+            <if test="deliveryStatus != null">delivery_Status = #{deliveryStatus},</if>
+            <if test="deliveryTime != null">delivery_Time = #{deliveryTime},</if>
+        </set>
+        where id = #{id}
+    </update>
+
     <select id="pageQuery" resultType="com.sky.entity.Orders">
         select * from orders
         <where>
