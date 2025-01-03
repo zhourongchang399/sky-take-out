@@ -6,6 +6,7 @@ import com.sky.entity.Orders;
 import com.sky.vo.OrderHistoryVO;
 import org.apache.ibatis.annotations.Mapper;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Mapper
@@ -21,4 +22,6 @@ public interface OrderMapper {
     Orders getById(long id);
 
     Integer count(Integer status);
+
+    List<Orders> getOrderByStatusAndTimeLT(Integer status, LocalDateTime orderTime);
 }
