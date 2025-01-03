@@ -5,6 +5,7 @@ import com.github.pagehelper.PageHelper;
 import com.sky.constant.MessageConstant;
 import com.sky.context.BaseContext;
 import com.sky.dto.OrdersPageQueryDTO;
+import com.sky.dto.OrdersPaymentDTO;
 import com.sky.dto.OrdersSubmitDTO;
 import com.sky.entity.AddressBook;
 import com.sky.entity.OrderDetail;
@@ -202,5 +203,27 @@ public class OrderServiceImpl implements OrderService {
         }
         orderDetailsMapper.insert(orderDetailList);
 
+    }
+
+    @Override
+    @Transactional
+    public Orders payment(OrdersPaymentDTO ordersPaymentDTO) {
+        // 获取订单信息
+        Orders orders = new Orders();
+        orders.setUserId(BaseContext.getCurrentId());
+        orders.setNumber(ordersPaymentDTO.getOrderNumber());
+        List<Orders> ordersList = orderMapper.list(orders);
+        if (ordersList.isEmpty()) {
+            throw new OrderBusinessException(MessageConstant.UNKNOWN_ERROR);
+        }
+
+        // 更新订单信息
+        Orders targetOrders = ordersList.get(0);
+        targetOrders.setCheckoutTime(LocalDateTime.now().plusHours(1));
+        targetOrders.setPayStatus(Orders.PAID);
+        targetOrders.setStatus(Orders.TO_BE_CONFIRMED);
+        orderMapper.update(targetOrders);
+
+        return targetOrders;
     }
 }
