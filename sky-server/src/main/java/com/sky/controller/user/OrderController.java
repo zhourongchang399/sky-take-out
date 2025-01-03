@@ -1,5 +1,6 @@
 package com.sky.controller.user;
 
+import com.alibaba.fastjson.JSONObject;
 import com.sky.dto.OrdersDTO;
 import com.sky.dto.OrdersPageQueryDTO;
 import com.sky.dto.OrdersPaymentDTO;
@@ -8,6 +9,8 @@ import com.sky.entity.Orders;
 import com.sky.result.PageResult;
 import com.sky.result.Result;
 import com.sky.service.OrderService;
+import com.sky.service.UserService;
+import com.sky.socket.WebSocketServer;
 import com.sky.vo.OrderItemVO;
 import com.sky.vo.OrderSubmitVO;
 import io.swagger.annotations.Api;
@@ -70,6 +73,14 @@ public class OrderController {
         return Result.success(orderItemVO);
     }
 
+    @GetMapping("/reminder/{id}")
+    @ApiOperation("催单")
+    public Result reminder(@PathVariable long id) {
+        log.info("催单:{}",id);
+        orderService.reminder(id);
+        return Result.success();
+    }
+
     @PostMapping("/repetition/{id}")
     @ApiOperation("再来一单")
     public Result repitition(@PathVariable long id) {
@@ -85,5 +96,7 @@ public class OrderController {
         Orders orders = orderService.payment(ordersPaymentDTO);
         return Result.success(orders);
     }
+
+
 
 }

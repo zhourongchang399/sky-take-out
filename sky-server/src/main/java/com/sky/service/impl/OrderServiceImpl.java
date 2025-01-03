@@ -1,5 +1,6 @@
 package com.sky.service.impl;
 
+import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.sky.constant.MessageConstant;
@@ -18,6 +19,7 @@ import com.sky.mapper.OrderMapper;
 import com.sky.mapper.ShoppingCartMapper;
 import com.sky.result.PageResult;
 import com.sky.service.OrderService;
+import com.sky.socket.WebSocketServer;
 import com.sky.vo.OrderHistoryVO;
 import com.sky.vo.OrderItemVO;
 import com.sky.vo.OrderOverViewVO;
@@ -51,6 +53,9 @@ public class OrderServiceImpl implements OrderService {
 
     @Autowired
     private ShoppingCartMapper shoppingCartMapper;
+
+    @Autowired
+    private WebSocketServer webSocketServer;
 
     @Override
     @Transactional
@@ -233,6 +238,13 @@ public class OrderServiceImpl implements OrderService {
         targetOrders.setStatus(Orders.TO_BE_CONFIRMED);
         orderMapper.update(targetOrders);
 
+        // 向管理端推送来单消息
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("type", 1);
+        jsonObject.put("orderId", orders.getId());
+        jsonObject.put("content", "订单号：" + orders.getNumber());
+        webSocketServer.sendAllMessage(jsonObject.toJSONString());
+
         return targetOrders;
     }
 
@@ -246,4 +258,17 @@ public class OrderServiceImpl implements OrderService {
         return new OrderOverViewVO(waitingOrders,deliveredOrders,completedOrders,cancelledOrders,allOrders);
     }
 
+    @Override
+    public void reminder(long id) {
+        Orders orders = orderMapper.getById(id);
+        if (orders == null) {
+            throw new OrderBusinessException(MessageConstant.UNKNOWN_ERROR);
+        }
+        // 向管理端推送来单消息
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("type", 0);
+        jsonObject.put("orderId", orders.getId());
+        jsonObject.put("content", "订单号：" + orders.getNumber());
+        webSocketServer.sendAllMessage(jsonObject.toJSONString());
+    }
 }

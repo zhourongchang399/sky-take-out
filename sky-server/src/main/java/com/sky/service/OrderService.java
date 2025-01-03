@@ -24,4 +24,6 @@ public interface OrderService {
     Orders payment(OrdersPaymentDTO ordersPaymentDTO);
 
     OrderOverViewVO statistics();
+
+    void reminder(long id);
 }
