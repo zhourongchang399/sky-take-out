@@ -21,6 +21,7 @@ import com.sky.service.DishService;
 import com.sky.service.OrderService;
 import com.sky.vo.OrderHistoryVO;
 import com.sky.vo.OrderItemVO;
+import com.sky.vo.OrderOverViewVO;
 import com.sky.vo.OrderSubmitVO;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -237,5 +238,15 @@ public class OrderServiceImpl implements OrderService {
         orderMapper.update(targetOrders);
 
         return targetOrders;
+    }
+
+    @Override
+    public OrderOverViewVO statistics() {
+        Integer waitingOrders = orderMapper.count(Orders.TO_BE_CONFIRMED);
+        Integer deliveredOrders = orderMapper.count(Orders.CONFIRMED);
+        Integer completedOrders = orderMapper.count(Orders.COMPLETED);
+        Integer cancelledOrders = orderMapper.count(Orders.CANCELLED);
+        Integer allOrders = orderMapper.count(null);
+        return new OrderOverViewVO(waitingOrders,deliveredOrders,completedOrders,cancelledOrders,allOrders);
     }
 }

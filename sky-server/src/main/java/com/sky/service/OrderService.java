@@ -7,6 +7,7 @@ import com.sky.dto.OrdersSubmitDTO;
 import com.sky.entity.Orders;
 import com.sky.result.PageResult;
 import com.sky.vo.OrderItemVO;
+import com.sky.vo.OrderOverViewVO;
 import com.sky.vo.OrderSubmitVO;
 
 public interface OrderService {
@@ -21,4 +22,6 @@ public interface OrderService {
     void repitition(long id);
 
     Orders payment(OrdersPaymentDTO ordersPaymentDTO);
+
+    OrderOverViewVO statistics();
 }
