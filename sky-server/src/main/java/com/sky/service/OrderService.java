@@ -17,6 +17,8 @@ public interface OrderService {
 
     void cancel(long id);
 
+    void completed(long id);
+
     OrderItemVO orderDetail(long id);
 
     void repitition(long id);
@@ -24,4 +26,6 @@ public interface OrderService {
     Orders payment(OrdersPaymentDTO ordersPaymentDTO);
 
     OrderOverViewVO statistics();
+
+    void confirm(Long id);
 }

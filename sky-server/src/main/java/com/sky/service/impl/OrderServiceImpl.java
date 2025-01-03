@@ -17,7 +17,6 @@ import com.sky.mapper.OrderDetailsMapper;
 import com.sky.mapper.OrderMapper;
 import com.sky.mapper.ShoppingCartMapper;
 import com.sky.result.PageResult;
-import com.sky.service.DishService;
 import com.sky.service.OrderService;
 import com.sky.vo.OrderHistoryVO;
 import com.sky.vo.OrderItemVO;
@@ -166,6 +165,22 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    public void completed(long id) {
+        Orders orders = new Orders();
+        orders.setId(id);
+        orders.setStatus(Orders.COMPLETED);
+        orderMapper.update(orders);
+    }
+
+    @Override
+    public void confirm(Long id) {
+        Orders orders = new Orders();
+        orders.setId(id);
+        orders.setStatus(Orders.CONFIRMED);
+        orderMapper.update(orders);
+    }
+
+    @Override
     @Transactional
     public OrderItemVO orderDetail(long id) {
         // 查询订单信息
@@ -249,4 +264,5 @@ public class OrderServiceImpl implements OrderService {
         Integer allOrders = orderMapper.count(null);
         return new OrderOverViewVO(waitingOrders,deliveredOrders,completedOrders,cancelledOrders,allOrders);
     }
+
 }
