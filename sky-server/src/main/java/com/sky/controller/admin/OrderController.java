@@ -89,6 +89,7 @@ public class OrderController {
         Orders orders = new Orders();
         orders.setId(id);
         orders.setStatus(Orders.COMPLETED);
+        orders.setDeliveryTime(LocalDateTime.now());
         orderService.update(orders);
         return Result.success();
     }
@@ -98,6 +99,17 @@ public class OrderController {
     public Result confirm(@RequestBody Orders orders) {
         log.info("接单:{}", orders.getId());
         orders.setStatus(Orders.CONFIRMED);
+        orderService.update(orders);
+        return Result.success();
+    }
+
+    @PutMapping("/delivery/{id}")
+    @ApiOperation("派送订单")
+    public Result confirm(@PathVariable long id) {
+        log.info("派送订单:{}", id);
+        Orders orders = new Orders();
+        orders.setId(id);
+        orders.setStatus(Orders.DELIVERY_IN_PROGRESS);
         orderService.update(orders);
         return Result.success();
     }
