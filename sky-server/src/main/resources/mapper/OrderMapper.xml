@@ -105,4 +105,8 @@
         select * from orders where status = #{status} and order_time &lt; #{orderTime}
     </select>
 
+    <select id="turnoverStatistics" resultType="java.lang.Double">
+        select sum(amount) from orders where order_time between #{begin} and #{end} and status = #{status}
+    </select>
+
 </mapper>

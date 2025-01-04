@@ -5,6 +5,8 @@ import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 
+import java.util.Map;
+
 @Mapper
 public interface UserMapper {
 
@@ -12,4 +14,6 @@ public interface UserMapper {
     User getByOpenId(String openId);
 
     void insert(User user);
+
+    Double userStatistics(Map<String, Object> map);
 }

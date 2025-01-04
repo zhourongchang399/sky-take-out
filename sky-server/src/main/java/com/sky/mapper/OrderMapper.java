@@ -8,6 +8,7 @@ import org.apache.ibatis.annotations.Mapper;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 @Mapper
 public interface OrderMapper {
@@ -24,4 +25,6 @@ public interface OrderMapper {
     Integer count(Integer status);
 
     List<Orders> getOrderByStatusAndTimeLT(Integer status, LocalDateTime orderTime);
+
+    Double turnoverStatistics(Map<String, Object> map);
 }
