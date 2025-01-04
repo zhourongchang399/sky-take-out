@@ -5,21 +5,26 @@ import com.sky.entity.Orders;
 import com.sky.mapper.OrderMapper;
 import com.sky.mapper.UserMapper;
 import com.sky.service.ReportService;
-import com.sky.vo.OrderReportVO;
-import com.sky.vo.SalesTop10ReportVO;
-import com.sky.vo.TurnoverReportVO;
-import com.sky.vo.UserReportVO;
+import com.sky.service.WorkspaceService;
+import com.sky.vo.*;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
+import org.apache.poi.xssf.usermodel.XSSFRow;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletResponse;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.StringJoiner;
+import java.util.*;
 
 /**
  * @author ：Zc
@@ -35,6 +40,9 @@ public class ReportServiceImpl implements ReportService {
 
     @Autowired
     UserMapper userMapper;
+
+    @Autowired
+    WorkspaceService workspaceService;
 
     @Override
     public TurnoverReportVO turnoverStatistics(LocalDate begin, LocalDate end) {
@@ -67,11 +75,11 @@ public class ReportServiceImpl implements ReportService {
             // 统计截至到begin当天最晚时刻的总用户
             Map<String, Object> map = new HashMap<>();
             map.put("end", LocalDateTime.of(begin, LocalTime.MAX));
-            Double totalUser = userMapper.userStatistics(map);
+            Integer totalUser = userMapper.userStatistics(map);
 
             // 统计begin当天新增用户
             map.put("begin", LocalDateTime.of(begin, LocalTime.MIN));
-            Double newUser = userMapper.userStatistics(map);
+            Integer newUser = userMapper.userStatistics(map);
 
             // 构造字符串
             dateJoiner.add(begin.toString());
@@ -134,6 +142,64 @@ public class ReportServiceImpl implements ReportService {
         }
 
         return new SalesTop10ReportVO(nameJoiner.toString(), countJoiner.toString());
+    }
+
+    @Override
+    public void export(HttpServletResponse response) {
+        BusinessDataVO totalBusinessData = new BusinessDataVO(0.0,0,0.0,0.0,0);
+        File file = new File("C:\\Users\\49744\\Documents\\sky-take-out\\sky-server\\src\\main\\resources\\template\\运营数据报表模板.xlsx");
+
+        try {
+            // 打开模板文件
+            FileInputStream inputStream = new FileInputStream(file);
+            XSSFWorkbook workbook = new XSSFWorkbook(inputStream);
+            XSSFSheet sheet = workbook.getSheet("Sheet1");
+
+            LocalDate now = LocalDate.now();
+            LocalDate begin = now.minusDays(30);
+            int row = 7;
+            int unitPriceL = 0;
+            int orderCompletionRateL = 0;
+            // 获取报表信息
+            while (!begin.isEqual(now)) {
+                // 查询数据信息
+                BusinessDataVO businessDataVO = workspaceService.businessData(begin);
+
+                // 汇总
+                totalBusinessData.setTurnover(businessDataVO.getTurnover() + totalBusinessData.getTurnover());
+                totalBusinessData.setNewUsers(businessDataVO.getNewUsers() + totalBusinessData.getNewUsers());
+                unitPriceL += totalBusinessData.getUnitPrice() == 0.0 ? 0 : 1;
+                totalBusinessData.setUnitPrice(businessDataVO.getUnitPrice() + totalBusinessData.getUnitPrice());
+                orderCompletionRateL += totalBusinessData.getOrderCompletionRate() == 0.0 ? 0 : 1;
+                totalBusinessData.setOrderCompletionRate(businessDataVO.getOrderCompletionRate() + totalBusinessData.getOrderCompletionRate());
+                totalBusinessData.setValidOrderCount(businessDataVO.getValidOrderCount() + totalBusinessData.getValidOrderCount());
+
+                // 插入每天数据
+                sheet.getRow(row).getCell(1).setCellValue(String.valueOf(begin));
+                sheet.getRow(row).getCell(2).setCellValue(businessDataVO.getTurnover());
+                sheet.getRow(row).getCell(3).setCellValue(businessDataVO.getValidOrderCount());
+                sheet.getRow(row).getCell(4).setCellValue(businessDataVO.getOrderCompletionRate());
+                sheet.getRow(row).getCell(5).setCellValue(businessDataVO.getUnitPrice());
+                sheet.getRow(row).getCell(6).setCellValue(businessDataVO.getNewUsers());
+                begin = begin.plusDays(1);
+                row += 1;
+            }
+
+            // 插入总数据
+            sheet.getRow(3).getCell(2).setCellValue(totalBusinessData.getTurnover());
+            sheet.getRow(3).getCell(4).setCellValue(unitPriceL == 0 ? 0.0 : totalBusinessData.getOrderCompletionRate() / unitPriceL);
+            sheet.getRow(3).getCell(6).setCellValue(totalBusinessData.getNewUsers());
+            sheet.getRow(4).getCell(2).setCellValue(totalBusinessData.getValidOrderCount());
+            sheet.getRow(4).getCell(4).setCellValue(orderCompletionRateL == 0 ? 0.0 : totalBusinessData.getUnitPrice() / orderCompletionRateL);
+
+            // 关闭资源
+            ServletOutputStream responseOutputStream = response.getOutputStream();
+            workbook.write(responseOutputStream);
+            responseOutputStream.close();
+            workbook.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 }

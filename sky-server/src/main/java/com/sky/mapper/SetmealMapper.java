@@ -8,7 +8,6 @@ import com.sky.enumeration.OperationType;
 import com.sky.vo.SetmealVO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
-import org.apache.ibatis.annotations.Update;
 
 import java.util.List;
 
@@ -32,4 +31,7 @@ public interface SetmealMapper {
 
     @AutoFill(operation = OperationType.UPDATE)
     void update(Setmeal setmeal);
+
+    @Select("select count(0) from setmeal where status = #{status}")
+    Integer setmealStatistics(Integer status);
 }

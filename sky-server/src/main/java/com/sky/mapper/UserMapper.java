@@ -15,5 +15,5 @@ public interface UserMapper {
 
     void insert(User user);
 
-    Double userStatistics(Map<String, Object> map);
+    Integer userStatistics(Map<String, Object> map);
 }
