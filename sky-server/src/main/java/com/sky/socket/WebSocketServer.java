@@ -23,7 +23,7 @@ import java.util.Map;
 @ServerEndpoint("/ws/{sid}")
 public class WebSocketServer {
 
-    private Map<String, Session> sessions = new HashMap();
+    private static Map<String, Session> sessions = new HashMap();
 
     @OnOpen
     public void onOpen(Session session, @PathParam("sid") String sid) {
@@ -46,6 +46,7 @@ public class WebSocketServer {
         log.info(message);
         for (Session session : sessions.values()) {
             try {
+                log.info("send to {}:{}",session.getId(),message);
                 session.getBasicRemote().sendText(message);
             } catch (IOException e) {
                 throw new RuntimeException(e);
