@@ -1,9 +1,11 @@
 package com.sky.mapper;
 
 import com.github.pagehelper.Page;
+import com.sky.dto.GoodsSalesDTO;
 import com.sky.dto.OrdersPageQueryDTO;
 import com.sky.entity.Orders;
 import com.sky.vo.OrderHistoryVO;
+import com.sky.vo.SalesTop10ReportVO;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.time.LocalDateTime;
@@ -27,4 +29,8 @@ public interface OrderMapper {
     List<Orders> getOrderByStatusAndTimeLT(Integer status, LocalDateTime orderTime);
 
     Double turnoverStatistics(Map<String, Object> map);
+
+    Integer ordersStatistics(Map<String, Object> map);
+
+    List<GoodsSalesDTO> top(Map<String, Object> rankMap);
 }

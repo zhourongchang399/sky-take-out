@@ -109,4 +109,19 @@
         select sum(amount) from orders where order_time between #{begin} and #{end} and status = #{status}
     </select>
 
+    <select id="ordersStatistics" resultType="java.lang.Integer">
+        select count(0) from orders
+        <where>
+            <if test="begin != null">order_time &gt;= #{begin}</if>
+            <if test="end != null">and order_time &lt;= #{end}</if>
+            <if test="status != null">and status = #{status}</if>
+        </where>
+    </select>
+
+    <select id="top" resultType="com.sky.dto.GoodsSalesDTO">
+        select count(0) as number, name from orders left join order_detail on orders.id = order_detail.order_id
+        where status = #{status} and order_time between #{begin} and #{end}
+        group by name order by number desc limit #{rank};
+    </select>
+
 </mapper>
